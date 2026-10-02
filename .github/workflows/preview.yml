@@ -1,0 +1,75 @@
+name: PR preview
+on:
+  pull_request:
+    # "closed" is included so the action can delete the preview when the PR ends.
+    types: [opened, synchronize, reopened, closed]
+
+# One deployment per PR at a time; a newer push supersedes an in-flight one.
+concurrency: preview-${{ github.ref }}
+
+permissions:
+  contents: read
+
+jobs:
+  preview:
+    name: Build and publish PR preview
+    # Fork-only. Upstream deploys through its own infrastructure.
+    if: github.repository != 'OpenNeuroOrg/openneuro'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write # the action commits the build to the gh-pages branch
+      pull-requests: write # ...and posts the preview link as a comment
+    env:
+      # Each PR is served from its own subdirectory, so the base path is
+      # per-PR rather than the repository root.
+      BASE_PATH: /${{ github.event.repository.name }}/pr-preview/pr-${{ github.event.number }}/
+      # The preview is static: it talks to an already-deployed OpenNeuro API.
+      # Read-only browsing works; login does not, since the auth cookie is
+      # scoped to that API's domain.
+      PREVIEW_API_URL: https://openneuro.org
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - uses: actions/setup-node@v7
+        if: github.event.action != 'closed'
+        with:
+          node-version: 24.x
+          cache: yarn
+
+      - name: Install
+        if: github.event.action != 'closed'
+        run: yarn install
+
+      - name: Build app
+        if: github.event.action != 'closed'
+        run: yarn build --base "$BASE_PATH"
+        working-directory: packages/openneuro-app
+
+      - name: Add static config and SPA fallback
+        if: github.event.action != 'closed'
+        working-directory: packages/openneuro-app/src/dist
+        run: |
+          # Normally served by openneuro-server at /crn/config.js.
+          mkdir -p crn
+          cat > crn/config.js <<EOF
+          window.OpenNeuroConfig = {
+            CRN_SERVER_URL: "$PREVIEW_API_URL",
+            GRAPHQL_URI: "$PREVIEW_API_URL/crn/graphql",
+            GOOGLE_TRACKING_IDS: "",
+            ENVIRONMENT: "preview",
+          }
+          EOF
+          # The config is an absolute external import in every chunk, and the
+          # favicon is an absolute link; point both inside the preview.
+          sed -i "s#\"/crn/config.js\"#\"${BASE_PATH}crn/config.js\"#g" assets/*.js
+          sed -i "s#\"/favicon.ico\"#\"${BASE_PATH}favicon.ico\"#" index.html
+          cp ../assets/favicon.ico favicon.ico
+          # Pages has no rewrite rule, so deep links are served the 404 page;
+          # serving a copy of index.html there lets react-router resolve the route.
+          cp index.html 404.html
+
+      - name: Deploy preview
+        uses: rossjrw/pr-preview-action@9f77b1d057b494e662c50b8ca40ecc63f21e0887 # v1.6.2
+        with:
+          source-dir: packages/openneuro-app/src/dist
+          preview-branch: gh-pages
