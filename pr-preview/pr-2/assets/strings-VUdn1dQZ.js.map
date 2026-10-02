@@ -1,0 +1,1 @@
+{"version":3,"file":"strings-VUdn1dQZ.js","sources":["../../scripts/resources/strings.js"],"sourcesContent":["export const pageTitle = \"OpenNeuro\"\nexport const pageDescription =\n  \"A free and open platform for analyzing and sharing neuroimaging data\"\n"],"names":["pageTitle"],"mappings":"AAAY,MAACA,EAAY"}
