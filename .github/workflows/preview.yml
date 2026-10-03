@@ -65,6 +65,13 @@ jobs:
           sed -i "s#\"/crn/config.js\"#\"${BASE_PATH}crn/config.js\"#g" assets/*.js
           sed -i "s#\"/favicon.ico\"#\"${BASE_PATH}favicon.ico\"#" index.html
           cp ../assets/favicon.ico favicon.ico
+          # The Font Awesome kit is restricted to the production domain and is
+          # refused here, so swap it for the free build (with v4 name shims).
+          npm pack -s @fortawesome/fontawesome-free@6.7.2 --pack-destination "$RUNNER_TEMP"
+          mkdir -p fontawesome
+          tar xzf "$RUNNER_TEMP/fortawesome-fontawesome-free-6.7.2.tgz" -C fontawesome --strip-components=1 package/css package/webfonts
+          perl -0pi -e 's#<script\s+src="https://kit\.fontawesome\.com/[^"]+"[^>]*>\s*</script>##' index.html
+          sed -i "s#<head>#<head><link rel=\"stylesheet\" href=\"${BASE_PATH}fontawesome/css/all.min.css\"><link rel=\"stylesheet\" href=\"${BASE_PATH}fontawesome/css/v4-shims.min.css\">#" index.html
           # Deep links reach the site-root 404.html (below), which redirects
           # here with the route in ?__route=; restore it before the app boots.
           sed -i "s#<head>#<head><script>(function(){var m=location.search.match(/[?\&]__route=([^\&]*)/);if(m)history.replaceState(null,'','${BASE_PATH}'+decodeURIComponent(m[1])+location.hash)})()</script>#" index.html
