@@ -64,12 +64,41 @@ jobs:
           sed -i "s#\"/crn/config.js\"#\"${BASE_PATH}crn/config.js\"#g" assets/*.js
           sed -i "s#\"/favicon.ico\"#\"${BASE_PATH}favicon.ico\"#" index.html
           cp ../assets/favicon.ico favicon.ico
-          # Pages has no rewrite rule, so deep links are served the 404 page;
-          # serving a copy of index.html there lets react-router resolve the route.
-          cp index.html 404.html
+          # Deep links reach the site-root 404.html (below), which redirects
+          # here with the route in ?__route=; restore it before the app boots.
+          sed -i "s#<head>#<head><script>(function(){var m=location.search.match(/[?\&]__route=([^\&]*)/);if(m)history.replaceState(null,'','${BASE_PATH}'+decodeURIComponent(m[1])+location.hash)})()</script>#" index.html
 
       - name: Deploy preview
         uses: rossjrw/pr-preview-action@9f77b1d057b494e662c50b8ca40ecc63f21e0887 # v1.6.2
         with:
           source-dir: packages/openneuro-app/src/dist
           preview-branch: gh-pages
+
+      - name: Write site-root 404 page
+        if: github.event.action != 'closed'
+        # Pages only serves the 404.html at the site root, never one inside a
+        # preview directory, so this one forwards deep links to their preview.
+        run: |
+          mkdir -p "$RUNNER_TEMP/pages-root"
+          cat > "$RUNNER_TEMP/pages-root/404.html" <<'EOF'
+          <!doctype html>
+          <meta charset="utf-8">
+          <title>Not found</title>
+          <script>
+            var m = location.pathname.match(/^(\/[^/]+\/pr-preview\/pr-\d+\/)(.+)$/)
+            if (m && !/[?&]__route=/.test(location.search)) {
+              location.replace(m[1] + "?__route=" + encodeURIComponent(m[2] + location.search) + location.hash)
+            } else {
+              document.write("Not found")
+            }
+          </script>
+          EOF
+
+      - name: Deploy site-root 404 page
+        if: github.event.action != 'closed'
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: ${{ runner.temp }}/pages-root
+          branch: gh-pages
+          clean: false
+          commit-message: Update site-root 404 redirect
