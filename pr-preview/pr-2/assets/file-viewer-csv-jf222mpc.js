@@ -1,2 +1,0 @@
-import{R as t,P as o}from"./index-B1Gp8jrG.js";import{p,F as s}from"./file-viewer-table-CYXMJBqy.js";import"/openneuro/pr-preview/pr-2/crn/config.js";import"./data-table-DAmJekKj.js";import"./index-CJJibF1O.js";const i=({data:e})=>{const r=new TextDecoder,a=p(r.decode(e),",");return t.createElement(s,{tableData:a})};i.propTypes={data:o.instanceOf(ArrayBuffer)};export{i as default};
-//# sourceMappingURL=file-viewer-csv-jf222mpc.js.map
