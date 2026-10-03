@@ -49,15 +49,16 @@ jobs:
         if: github.event.action != 'closed'
         working-directory: packages/openneuro-app/src/dist
         run: |
-          # Normally served by openneuro-server at /crn/config.js.
+          # Normally served by openneuro-server at /crn/config.js. Reuse the
+          # target instance's public config so every key the app reads is set,
+          # but keep preview traffic out of its analytics and Sentry environment.
           mkdir -p crn
-          cat > crn/config.js <<EOF
-          window.OpenNeuroConfig = {
-            CRN_SERVER_URL: "$PREVIEW_API_URL",
-            GRAPHQL_URI: "$PREVIEW_API_URL/crn/graphql",
-            GOOGLE_TRACKING_IDS: "",
-            ENVIRONMENT: "preview",
-          }
+          curl -fsSL --retry 3 "$PREVIEW_API_URL/crn/config.js" > crn/config.js
+          cat >> crn/config.js <<'EOF'
+
+          window.OpenNeuroConfig.GOOGLE_TRACKING_IDS = ""
+          window.OpenNeuroConfig.ENVIRONMENT = "preview"
+          window.OpenNeuroConfig.ORCID_API_ENDPOINT ||= "https://pub.orcid.org"
           EOF
           # The config is an absolute external import in every chunk, and the
           # favicon is an absolute link; point both inside the preview.
