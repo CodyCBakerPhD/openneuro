@@ -1,0 +1,11 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Not found</title>
+<script>
+  var m = location.pathname.match(/^(\/[^/]+\/pr-preview\/pr-\d+\/)(.+)$/)
+  if (m && !/[?&]__route=/.test(location.search)) {
+    location.replace(m[1] + "?__route=" + encodeURIComponent(m[2] + location.search) + location.hash)
+  } else {
+    document.write("Not found")
+  }
+</script>
