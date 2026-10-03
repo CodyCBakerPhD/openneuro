@@ -4,6 +4,13 @@ import { MemoryRouter } from "react-router-dom"
 import { FileDisplayBackLink } from "../file-display"
 
 describe("FileDisplayBackLink", () => {
+  it("renders the back link", () => {
+    const { asFragment } = render(
+      <FileDisplayBackLink datasetId="ds000001" />,
+      { wrapper: MemoryRouter },
+    )
+    expect(asFragment()).toMatchSnapshot()
+  })
   it("links back to the draft dataset page", () => {
     render(<FileDisplayBackLink datasetId="ds000001" />, {
       wrapper: MemoryRouter,
