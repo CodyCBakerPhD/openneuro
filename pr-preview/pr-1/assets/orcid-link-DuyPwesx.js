@@ -1,0 +1,9 @@
+import{R as e,ag as n,aS as t,b7 as o,B as a,b8 as l,n as r}from"./index-B3fRTVAC.js";import"/openneuro/pr-preview/pr-1/crn/config.js";const i=r.div`
+  background: white;
+
+  .container {
+    max-width: 60em;
+    min-height: calc(100vh - 152px);
+  }
+`;function s(){return e.createElement(i,null,e.createElement(n,null,e.createElement("title",null,"Link ORCID to your existing account - ",t.pageTitle),e.createElement("meta",{name:"description",content:"How to link your ORCID account to your Google based OpenNeuro account"})),e.createElement("div",{className:"container"},e.createElement("h2",null,"ORCID account migration"),e.createElement("p",null,"OpenNeuro is moving to ORCID for all accounts. Please link an ORCID to your account to continue and use ORCID for future logins. If you have used Google login before, any datasets, comments, and permissions you have will be merged into the combined OpenNeuro account linked to your ORCID iD."),e.createElement("p",null),e.createElement("p",null,"Please see"," ",e.createElement("a",{href:"https://docs.openneuro.org/orcid.html"},"our documentation")," ","for additional details on how we use ORCID data and how to link your account."),e.createElement("h3",null,"Why are we making this change?"),e.createElement("p",null,"ORCID allows richer researcher metadata for contributions and optionally sharing contributions to datasets as works on your ORCID profile."),e.createElement("h3",null,"Will Google accounts continue to work?"),e.createElement("p",null,"To make new contributions you will need link an ORCID but any existing contributions will remain available."),e.createElement("a",{href:o.orcid+"?migrate"},e.createElement(a,{className:"login-button",label:"Link ORCID",imgSrc:l}))))}export{s as OrcidLinkPage};
+//# sourceMappingURL=orcid-link-DuyPwesx.js.map

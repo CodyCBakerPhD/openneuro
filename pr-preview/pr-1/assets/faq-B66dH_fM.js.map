@@ -1,0 +1,1 @@
+{"version":3,"file":"faq-B66dH_fM.js","sources":["../../scripts/pages/faq/faq.tsx"],"sourcesContent":["import type React from \"react\"\n\nconst Faq = (): React.ReactElement => {\n  window.location.replace(\"https://docs.openneuro.org/faq\")\n  return null\n}\n\nexport default Faq\n"],"names":["Faq"],"mappings":"AAEA,MAAMA,EAAM,KACV,OAAO,SAAS,QAAQ,gCAAgC,EACjD"}
